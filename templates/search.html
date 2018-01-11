@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+    <div class="row"><h1>Search Courses</h1></div>
+    <form action="/search" method="post">
+        <div class="row">
+           <div class="col-2">
+                <select name="semester" class="form-control">
+                    <option value="">Semester</option>
+                    <option value="fall">Fall</option>
+                    <option value="spring">Spring</option>
+                </select>
+            </div>
+            <div class="col-8">
+                <input class="form-control" id="q" name="courses" placeholder="Search Courses" type="text"/>
+            </div> 
+            <div class="col-2">
+                <button class="btn btn-primary" type="submit">Look Up</button>
+            </div>    
+        </div>  
+    </form>
+    <div class="row"><h1>Results</h1></div>
+    <div class="row">
+    <table>
+        <thead id="semester">
+            <tr>
+                <td>Save?</td>
+                <td>Title</td>
+                <td>Abbreviation</td>
+                <td>Gen Ed</td>
+                <td>Q</td>
+                <td>Fall</td>
+                <td>Spring</td>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in results %}
+        <tr>
+            <td><form action="/add" method="post"><button class="btn btn-primary" type="submit" name="saved" value="{{item["cat_num"]}}">Save to List</button></form></td>
+            <td>{{ item["title"] }}</td>
+            <td>{{ item["number"] }}</td>
+            <td>{% for gen in item["gened"] %}
+            {{ gen }}<br>
+            {% endfor %}</td>
+            <td>{{ item["CourseOverall"] }}</td>
+            <td>{% if item["fall"] == "Y" %}
+                {{ item["fall"] }}
+                {% else %}
+                N
+                {% endif %}</td>
+            <td>{% if item["spring"] == "Y" %}
+                {{ item["spring"] }}
+                {% else %}
+                N
+                {% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+

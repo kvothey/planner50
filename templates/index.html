@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+<div class="row"><h1>Course Cart</h1></div>
+<div class="row">
+	<table>
+		<thead id="semester">
+			<tr>
+				<td>Semester</td>
+				<td>Year</td>
+				<td>Add</td>
+				<td>Abbreviation</td>
+				<td>Name</td>
+				<td>Gen Ed</td>
+				<td></td>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in courses %}
+				<tr>
+					{% if item['sem'] == 0 %}
+					<form action="/semester" method="post">
+					<td>
+		    			<select name="semester">
+					      	<option value="">Semester</option>
+					       	<option value="1">1st</option>
+					        <option value="2">2nd</option>
+						</select>
+					</td>
+					<td>
+		    			<select name="year">
+					      	<option value="">Year</option>
+					       	<option value="0">Freshman</option>
+					        <option value="2">Sophmore</option>
+					        <option value="4">Junior</option>
+					        <option value="6">Senior</option>
+						</select>
+					</td>
+					<td>
+						<button class="btn btn-primary" type="submit" name="saved" value="{{item["cat_num"]}}">Add</button>
+					</td>
+					</form>
+					{% else %}
+						{% if item['sem'] is divisibleby(2) %}
+						<td>2nd</td>
+						{% else %}
+						<td>1st</td>
+						{% endif %}
+						{% if 0 <= item['sem'] <= 1 %}
+						<td>Freshman</td>
+						{% elif 2 <= item['sem'] <= 3 %}
+						<td>Sophmore</td>
+						{% elif 4 <= item['sem'] <= 5 %}
+						<td>Junior</td>
+						{% elif 6 <= item['sem'] <= 7 %}
+						<td>Senior</td>
+						{% endif %}
+						<td>Added</td>
+					{% endif %}
+					<td>{{item['abbrev']}}</td>
+					<td>{{item['title']}}</td>
+					<td>{% for gen in item["gened"] %}
+		            {{ gen }}<br>
+		            {% endfor %}</td>
+					<td><form action="/remove" method="post">
+						<button type="submit" class="close" aria-label="Close" value="{{item["cat_num"]}}" name="remove">
+						  <span aria-hidden="true">&times;</span>
+						</button></form></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+<br><br>
+<div class="row"><h1>Semester Planning</h1></div>
+<div class="row">
+	<table>
+		<tbody>
+		{% for row in select %}
+			<tr id="semester">
+				<td>{{sem[loop.index0]}}</td>
+				<td>Abbrev</td>
+				<td>Title</td>
+				<td>Gen Ed</td>
+				<td></td>
+			</tr>
+			{% for entry in row %}
+				<tr>
+					<td></td>
+					<td>{{ entry['abbrev'] }}</td>
+					<td>{{ entry['title'] }}</td>
+					<td>{% for gen in entry['gened'] %}
+						{{ gen }}<br>
+						{% endfor %}</td>
+					<td><form action="/reset" method="post">
+						<button type="submit" class="close" aria-label="Close" value="{{entry["cat_num"]}}" name="reset">
+						  <span aria-hidden="true">&times;</span>
+						</button></form></td>
+				</tr>
+			{% endfor %}
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+<br><br>
+<div class="row"><h1>General Education Requirements</h1></div>
+<div class="row">
+	<table>
+		<tbody>
+		{% for req in gened %}
+			<tr>
+				<td>{{ req }}</td>
+				{% if req in fill %}
+				<td>{{ fill[req][0]["title"] }}</td>
+				<form action="/remreq" method="post">
+				<td>
+					<button class="btn btn-primary" type="submit" name="remreq" value="{{req}}">Remove</button>
+				</td>
+				</form>
+				{% else %}
+				<form action="/requirements" method="post">
+				<td>
+	    			<select name="requirements">
+	    				<option value="">Select Course</option>
+	    			{% for row in select %}
+	    				{% for entry in row %}
+	    					{% for gen in entry['gened'] %}
+	    						{% if gen == req %}
+	    							<option value="{{entry["cat_num"]}}">{{ entry["title"] }}</option>
+	    						{% endif %}
+	    					{% endfor %}
+	    				{% endfor %}
+	    			{% endfor %}
+					</select>
+				</td>
+				<td>
+					<button class="btn btn-primary" type="submit" name="saved" value="{{req}}">Add</button>
+				</td>
+				</form>
+				{% endif %}
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+
+{% endblock %}
+

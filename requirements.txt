@@ -1,0 +1,6 @@
+CS50
+Flask
+Flask-Session
+werkzeug.security
+werkzeug.exceptions
+tempfile
