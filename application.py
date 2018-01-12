@@ -81,13 +81,10 @@ def search():
 		if not query:
 			return apology("give a query, or %", 400)
 
-#SELECT courses.title, courses.notes, Qcourses.cat_num, Qcourses.number, courses.fall, courses.spring FROM courses INNER JOIN Qcourses ON courses.cat_num=Qcourses.cat_num WHERE (Qcourses.number LIKE "Econ 1010b") UNION SELECT courses.title, courses.notes, Qcourses.cat_num, Qcourses.number, courses.fall, courses.spring FROM courses INNER JOIN Qcourses ON courses.cat_num=Qcourses.cat_num WHERE (courses.title LIKE "Intermediate Microeconomics") ORDER BY Qcourses.cat_num ASC;
-
-#SELECT courses.title, courses.notes, Qcourses.cat_num, courses.fall, courses.spring FROM courses, Qcourses WHERE (courses.cat_num=Qcourses.cat_num) AND ((Qcourses.number LIKE "Econ 1010b") OR (courses.title LIKE "Intermediate Microeconomics")) ORDER BY courses.cat_num ASC;
-
+		#Write query
 		rows = "SELECT courses.title, courses.notes, Qcourses.cat_num, Qcourses.number, courses.fall, courses.spring FROM courses INNER JOIN Qcourses ON courses.cat_num=Qcourses.cat_num "
-		
 		params = ["WHERE (Qcourses.number LIKE :q) ", "WHERE (courses.title LIKE :q) ", ""]
+
 		if semester == "fall":
 			params[2] = "AND (courses.fall = 'Y') "
 		elif semester == "spring":
@@ -96,35 +93,10 @@ def search():
 		query = "%" + query + "%"
 		course = db.execute(rows + params[0] + params[2] + "UNION " + rows + params[1] + params[2] + "ORDER BY Qcourses.number ASC", q=query)
 
-		# #If semester query is empty
-		# if not semester:
-		# 	query += "%"
-		# 	query = "%" + query
-		# 	course = db.execute("SELECT courses.title, courses.notes, Qcourses.cat_num, courses.fall, courses.spring FROM courses, Qcourses WHERE (Qcourses.number LIKE :q) AND (Qcourses.cat_num = courses.cat_num) ORDER BY Qcourses.number ASC", q=query)
-		# 	course += db.execute("SELECT title, notes, cat_num, fall, spring FROM courses WHERE (title LIKE :q)", q=query)
-
-
-		# #If semester query is not empty
-		# elif semester == "fall":
-		# 	query += "%"
-		# 	query = "%" + query
-		# 	course = db.execute("SELECT courses.title, courses.notes, Qcourses.cat_num, courses.fall, courses.spring FROM courses, Qcourses WHERE (Qcourses.number LIKE :q) AND (Qcourses.cat_num = courses.cat_num) AND (courses.fall = :f) ORDER BY Qcourses.number ASC", q=query, f="Y")
-		# 	course += db.execute("SELECT title, notes, cat_num, fall, spring FROM courses WHERE (title LIKE :q) AND (fall=:f)", q=query,f="Y")
-
-		# elif semester == "spring":
-		# 	query += "%"
-		# 	query = "%" + query
-		# 	course = db.execute("SELECT courses.title, courses.notes, Qcourses.cat_num, courses.fall, courses.spring FROM courses, Qcourses WHERE (Qcourses.number LIKE :q) AND (Qcourses.cat_num = courses.cat_num) AND (courses.spring = :s) ORDER BY Qcourses.number ASC", q=query, s="Y")
-		# 	course += db.execute("SELECT title, notes, cat_num, fall, spring FROM courses WHERE (title LIKE :q) AND (spring=:s)", q=query,s="Y")
-
-		# #Gather remaining data from other table
+		#Get GenEd requirements
 		for row in course:
 			if row["notes"]:
 				row["gened"] = gened(row["notes"])
-		# 	search = db.execute("SELECT number, CourseOverall FROM Qcourses WHERE cat_num=:q LIMIT 1", q=row["cat_num"])
-		# 	if search:
-		# 		row["abbrev"] = search[0]["number"]
-		# 		row["score"] = search[0]["CourseOverall"]
 		return render_template("search.html", results=course, gen=gen)
 	else:
 		return render_template("search.html", gen=gen)
