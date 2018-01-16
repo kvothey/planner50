@@ -1,4 +1,6 @@
-from cs50 import SQL
+#from cs50 import SQL
+import os
+from flask_sqlalchemy import SQLALCHEMY
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -9,6 +11,16 @@ from helpers import login_required, apology, gened
 
 # Configure application
 app = Flask(__name__)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE"]
+db = SQLALCHEMY(app)
+
+class User(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(80), unique=True, nullable)
+	def __init__(self, name):
+		self.name = name
+
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
@@ -17,7 +29,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///courses50.db")
+#db = SQL("sqlite:///courses50.db")
 
 # List out GenEd Requirements
 gen = ["Aesthetic and Interpretive Understanding", "Culture and Belief", "Societies of the World", "United States in the World", "Ethical Reasoning", "Empirical and Mathematical Reasoning", "Science of the Physical Universe", "Science of Living Systems"]
